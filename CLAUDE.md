@@ -1,0 +1,90 @@
+# Coffea Web — Contexto do Projeto
+
+> Leia este arquivo por completo antes de qualquer tarefa. Os documentos citados abaixo, em
+> `docs/frontend-reference/`, só devem ser abertos quando a tarefa específica exigir aquele nível de
+> detalhe (requisitos, telas, contrato de API ou design/assets).
+
+## O que é o projeto
+
+Sistema acadêmico (UNIFRAN) que recebe uma foto de uma planta de café inteira, identifica cada folha
+visível e classifica o estresse biótico de cada uma — saudável, ferrugem, bicho-mineiro, cercosporiose
+ou phoma — com estimativa de severidade (saudável, muito baixa, baixa, alta, muito alta), via
+aprendizado por transferência. Prazo final do projeto: **06/11/2026**.
+
+O projeto é dividido em 14 "frentes" (módulos de trabalho). Este repositório (`coffea-web`) pertence à
+**Frente 5 — Frontend**, e implementa a interface web definida pela **Frente 4 (UX/UI)**, seguindo os
+requisitos da **Frente 3 (Requisitos, versão consolidada v4, 23/09/2026)**.
+
+## Fase atual: SÓ o frontend web, sem depender do backend real
+
+O desenvolvimento segue um modelo "em escada": cada frente pode adiantar trabalho antes de sua vez
+chegar, mas a versão final de uma frente só se consolida depois que a frente anterior está fechada. Hoje:
+
+- O `coffea-backend` existe apenas como esqueleto, com resposta simulada — **não é a versão final**.
+- A Frente 9 (Modelagem) ainda não confirmou se a detecção individual de folhas é viável no prazo (ver
+  pendência crítica abaixo).
+- **Por isso, esta etapa constrói o `coffea-web` inteiro contra um serviço mock local**, isolado em
+  `src/api/`, seguindo o contrato provisório descrito em `docs/frontend-reference/03-contrato-api-mock.md`.
+  Quando o backend real estiver pronto, só essa camada deve mudar — nenhum componente de tela deve
+  fazer suposições diretas sobre o formato da resposta da API.
+
+## Pendência crítica que afeta toda a Frente 5 (leia antes de decidir estrutura de dados)
+
+O requisito RF09 (identificar cada folha individualmente na foto da planta) foi elevado de Desejável
+para **Essencial** na v4 dos Requisitos, mas a própria Frente 3 registra que o dataset BRACOL não
+sustenta essa detecção — só tem folhas já recortadas — e nenhuma frente confirmou ainda um caminho
+técnico viável no prazo. Isso pode virar mudança de escopo sujeita a aprovação do professor.
+
+**Implicação prática para este repositório:** o contrato mock assume uma **lista de folhas**, mas cada
+folha tem localização (`regiao`) **opcional**. Nenhum componente deve assumir "sempre existe uma
+localização" nem "sempre existe mais de uma folha" — o app precisa funcionar tanto se a resposta final
+vier com 1 folha sem coordenadas quanto com N folhas com coordenadas. Ver detalhes no contrato mock.
+
+## Stack e stack decisions (já fixadas, não renegociar sem motivo forte)
+
+- React + Vite + TypeScript + TailwindCSS v4 (via `@tailwindcss/vite`)
+- Oxlint como linter
+- Deploy alvo: Vercel
+
+## Estrutura de pastas atual do esqueleto
+
+```
+coffea-web/
+├── src/
+│   ├── pages/       # TelaInicial, TelaUpload, TelaCarregando, TelaResultado, TelaErro
+│   ├── api/         # diagnostico.ts — chamada ao coffea-backend (hoje: será um mock)
+│   ├── App.tsx      # Decide qual tela mostrar (máquina de estado simples)
+│   ├── main.tsx
+│   └── index.css
+├── .env             # VITE_API_URL (local, não versionado)
+├── .env.example
+├── vite.config.ts
+└── package.json
+```
+
+⚠️ Essa estrutura foi pensada para um fluxo linear de 5 telas. A Frente 4 evoluiu para uma IA em
+**hub com abas** (ver `02-fluxo-de-telas.md`) — isso provavelmente exige reestruturar `pages/` e o
+raciocínio de estado do `App.tsx`. Não migre isso sozinho sem entender o mapa de telas completo primeiro.
+
+## Documentos de referência
+
+| Arquivo | Quando abrir |
+|---|---|
+| `docs/frontend-reference/01-requisitos-frontend.md` | Dúvida sobre o que é obrigatório vs. desejável, ou sobre os 5 tipos de erro |
+| `docs/frontend-reference/02-fluxo-de-telas.md` | Implementar ou revisar qualquer tela, navegação ou estado visual |
+| `docs/frontend-reference/03-contrato-api-mock.md` | Mexer em `src/api/`, tipos de dados, ou no serviço mock |
+| `docs/frontend-reference/04-design-e-assets.md` | Precisar de cor, ícone, imagem de referência, ou identificar o que ainda falta pedir à Frente 4 |
+| `docs/design-assets/` | Imagens reais (wireframes hoje; alta fidelidade quando a Frente 4 entregar) |
+
+## Regras não negociáveis
+
+1. **Fluxo essencial (RF03) vem antes do desejável (RF04/RF05).** Não gaste tempo em visualização
+   avançada ou histórico antes do upload → carregamento → resultado básico estar sólido.
+2. **Não invente telas, textos ou fluxos** que não estejam documentados. Se faltar informação, marque
+   com `// TODO(frente-4):` ou `// TODO(frente-3):` no código e sinalize ao usuário — não decida sozinho.
+3. **Nenhuma divergência silenciosa do protótipo da Frente 4.** Se uma tela documentada parecer
+   ambígua ou incompleta, é melhor perguntar do que preencher a lacuna com uma suposição de design.
+4. **Toda suposição sobre o formato de dados do backend fica isolada em `src/api/`**, nunca espalhada
+   pelos componentes de tela.
+5. Este arquivo e os documentos de `frontend-reference/` são vivos — se uma decisão mudar durante a
+   implementação (ex.: a pendência do RF09 for resolvida), atualize o documento correspondente também.
