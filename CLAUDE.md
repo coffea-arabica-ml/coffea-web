@@ -15,6 +15,10 @@ O projeto é dividido em 14 "frentes" (módulos de trabalho). Este repositório 
 **Frente 5 — Frontend**, e implementa a interface web definida pela **Frente 4 (UX/UI)**, seguindo os
 requisitos da **Frente 3 (Requisitos, versão consolidada v4, 23/09/2026)**.
 
+O nome voltado ao usuário é **Cafélens** (não "Coffea" — esse é só o nome
+técnico dos repositórios, ex. coffea-web). Todo texto visível na UI deve
+usar "Cafélens".
+
 ## Fase atual: SÓ o frontend web, sem depender do backend real
 
 O desenvolvimento segue um modelo "em escada": cada frente pode adiantar trabalho antes de sua vez
@@ -48,19 +52,20 @@ vier com 1 folha sem coordenadas quanto com N folhas com coordenadas. Ver detalh
 
 ## Estrutura de pastas atual do esqueleto
 
-```
 coffea-web/
 ├── src/
-│   ├── pages/       # TelaInicial, TelaUpload, TelaCarregando, TelaResultado, TelaErro
-│   ├── api/         # diagnostico.ts — chamada ao coffea-backend (hoje: será um mock)
-│   ├── App.tsx      # Decide qual tela mostrar (máquina de estado simples)
-│   ├── main.tsx
-│   └── index.css
-├── .env             # VITE_API_URL (local, não versionado)
+│ ├── pages/ # TelaInicial, TelaUpload, TelaCarregando, TelaResultado, TelaErro
+│ ├── api/ # diagnostico.ts — chamada ao coffea-backend (hoje: será um mock)
+│ ├── assets/ # logo, fundos, fotos de exemplo (produção); assets/exemplos/teste-* são
+│ │ # fixtures de dev para simular erros de upload, nunca exibidas ao usuário
+│ ├── App.tsx # Decide qual tela mostrar (máquina de estado simples)
+│ ├── main.tsx
+│ └── index.css
+├── .env # VITE_API_URL (local, não versionado)
 ├── .env.example
 ├── vite.config.ts
 └── package.json
-```
+
 
 ⚠️ Essa estrutura foi pensada para um fluxo linear de 5 telas. A Frente 4 evoluiu para uma IA em
 **hub com abas** (ver `02-fluxo-de-telas.md`) — isso provavelmente exige reestruturar `pages/` e o
@@ -73,17 +78,23 @@ raciocínio de estado do `App.tsx`. Não migre isso sozinho sem entender o mapa 
 | `docs/frontend-reference/01-requisitos-frontend.md` | Dúvida sobre o que é obrigatório vs. desejável, ou sobre os 5 tipos de erro |
 | `docs/frontend-reference/02-fluxo-de-telas.md` | Implementar ou revisar qualquer tela, navegação ou estado visual |
 | `docs/frontend-reference/03-contrato-api-mock.md` | Mexer em `src/api/`, tipos de dados, ou no serviço mock |
-| `docs/frontend-reference/04-design-e-assets.md` | Precisar de cor, ícone, imagem de referência, ou identificar o que ainda falta pedir à Frente 4 |
-| `docs/design-assets/` | Imagens reais (wireframes hoje; alta fidelidade quando a Frente 4 entregar) |
+| `docs/frontend-reference/04-design-e-assets.md` | Precisar de cor, ícone, imagem de referência, ou saber o que já está resolvido em termos de assets |
+| `docs/design-assets/` | Wireframes de baixa fidelidade (Excalidraw) e as 19 telas de alta fidelidade já exportadas do Figma (PDF + PNG) |
 
 ## Regras não negociáveis
 
 1. **Fluxo essencial (RF03) vem antes do desejável (RF04/RF05).** Não gaste tempo em visualização
    avançada ou histórico antes do upload → carregamento → resultado básico estar sólido.
-2. **Não invente telas, textos ou fluxos** que não estejam documentados. Se faltar informação, marque
-   com `// TODO(frente-4):` ou `// TODO(frente-3):` no código e sinalize ao usuário — não decida sozinho.
-3. **Nenhuma divergência silenciosa do protótipo da Frente 4.** Se uma tela documentada parecer
-   ambígua ou incompleta, é melhor perguntar do que preencher a lacuna com uma suposição de design.
+2. **Os wireframes/Figma são referência estrutural, não especificação visual final.**
+   Eles fixam QUAIS telas existem, QUAIS estados cada uma tem e QUE informação
+   precisa aparecer (isso vem dos requisitos da Frente 3). Cor, tipografia,
+   ilustração, layout e todo o texto/copy são livres — pode e deve elevar para
+   um design mais criativo e profissional, e reescrever qualquer texto, sem
+   precisar perguntar antes.
+3. **Exceção:** o RF04 define que a visualização explicativa usa círculos
+   clicáveis por categoria (não mapa de calor) — isso está escrito no próprio
+   requisito da Frente 3, não é só estética da Frente 4, então esse
+   comportamento específico deve ser mantido mesmo com redesign.
 4. **Toda suposição sobre o formato de dados do backend fica isolada em `src/api/`**, nunca espalhada
    pelos componentes de tela.
 5. Este arquivo e os documentos de `frontend-reference/` são vivos — se uma decisão mudar durante a
