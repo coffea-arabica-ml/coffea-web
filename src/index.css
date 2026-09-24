@@ -1,1 +1,152 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
+
+  /* Papel e tinta */
+  --color-papel: #f5f3ec;
+  --color-papel-2: #ece8dc;
+  --color-superficie: #fffdf8;
+  --color-linha: #dcd6c6;
+  --color-tinta: #17231b;
+  --color-tinta-suave: #4d5b51;
+  --color-tinta-fraca: #5f6a61;
+
+  /* Verde do logo Cafélens */
+  --color-folha-50: #eef4ee;
+  --color-folha-100: #d7e7d8;
+  --color-folha-300: #8fbb95;
+  --color-folha-500: #3f8049;
+  --color-folha-600: #2f6b3b;
+  --color-folha-700: #245330;
+  --color-folha-900: #11281a;
+
+  /* Cereja: sinais encontrados e erros */
+  --color-cereja-50: #fbefec;
+  --color-cereja-100: #f5d9d2;
+  --color-cereja-500: #c24a31;
+  --color-cereja-600: #a83c26;
+  --color-cereja-700: #86301f;
+
+  /* Categorias (base Okabe-Ito, segura para daltonismo) — sempre acompanhadas de número/texto */
+  --color-cat-ferrugem: #d55e00;
+  --color-cat-bicho-mineiro: #c99400;
+  --color-cat-cercosporiose: #b8538f;
+  --color-cat-phoma: #0072b2;
+
+  --radius-cartao: 1.5rem;
+  --shadow-cartao: 0 1px 2px rgb(23 35 27 / 0.04), 0 8px 24px -12px rgb(23 35 27 / 0.18);
+  --shadow-flutuante: 0 12px 40px -12px rgb(17 40 26 / 0.35);
+
+  --animate-surgir: surgir 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-varrer: varrer 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  --animate-orbitar: orbitar 3.2s ease-in-out infinite;
+  --animate-tremer: tremer 0.35s ease-in-out;
+  --animate-barra: barra 1.6s ease-in-out infinite;
+  --animate-respirar: respirar 28s ease-in-out infinite alternate;
+
+  @keyframes surgir {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes varrer {
+    0%,
+    100% {
+      top: 6%;
+    }
+    50% {
+      top: 88%;
+    }
+  }
+  @keyframes orbitar {
+    0%,
+    100% {
+      transform: translate(-30%, -20%);
+    }
+    33% {
+      transform: translate(25%, 5%);
+    }
+    66% {
+      transform: translate(-10%, 30%);
+    }
+  }
+  @keyframes respirar {
+    from {
+      transform: scale(1.04);
+    }
+    to {
+      transform: scale(1.12) translateX(-1.5%);
+    }
+  }
+  @keyframes barra {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(300%);
+    }
+  }
+  @keyframes tremer {
+    25% {
+      transform: translateX(-3px);
+    }
+    75% {
+      transform: translateX(3px);
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-papel font-sans text-tinta antialiased;
+    font-feature-settings: "ss01";
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-folha-600;
+  }
+  ::selection {
+    @apply bg-folha-100;
+  }
+}
+
+@utility font-display-suave {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 100, "WONK" 0;
+}
+
+@utility pb-seguro {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* Círculo da Visualização → lente do Detalhe (e a volta pela miniatura). */
+::view-transition-group(lente),
+::view-transition-group(foto) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-old(lente),
+::view-transition-new(lente) {
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
