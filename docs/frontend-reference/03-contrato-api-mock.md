@@ -32,14 +32,15 @@ export type TipoErroUpload =
   | "formato_invalido"
   | "especie_incorreta"
   | "arquivo_muito_grande"
+  | "baixa_confianca" // RF07 — adicionado pela Frente 5 (ver "Decisões" abaixo)
   | "erro_desconhecido";
 
 /** Região aproximada da folha na imagem, usada pelos círculos clicáveis (RF04). */
 export interface RegiaoFolha {
   /** Coordenadas relativas (0 a 1) em relação à largura/altura da imagem, não pixels absolutos. */
-  x: number;
-  y: number;
-  raio: number;
+  x: number; // centro, relativo à largura
+  y: number; // centro, relativo à altura
+  raio: number; // PROVISÓRIO: relativo à MENOR dimensão da imagem
 }
 
 export interface FolhaDiagnostico {
@@ -59,7 +60,10 @@ export interface FolhaDiagnostico {
 export interface DiagnosticoSucesso {
   status: "sucesso";
   imagemUrl: string;
-  /** Nunca assuma tamanho fixo: pode vir com 0 (nenhum problema), 1 ou N folhas. */
+  /**
+   * Nunca assuma tamanho fixo: pode vir com 0, 1 ou N folhas, e pode incluir folhas saudáveis.
+   * "Problema" = folha com categoria diferente de "saudavel".
+   */
   folhas: FolhaDiagnostico[];
 }
 
@@ -79,46 +83,51 @@ export interface AnaliseSalva {
 }
 ```
 
-## Serviço mock
+## Serviço (implementado em `src/api/`)
 
-```ts
-// src/api/diagnostico.ts
-import type { DiagnosticoResponse } from "./types";
+- `enviarImagemParaDiagnostico(imagem: File, { signal? }): Promise<DiagnosticoResponse>` (`src/api/diagnostico.ts`)
+  é o ponto único de entrada. O `signal` opcional cancela o envio (a promessa rejeita com AbortError);
+  qualquer outro problema vira `DiagnosticoErro` — a função nunca lança erro esperado.
+- `VITE_API_MODE=mock` (padrão) usa `src/api/mock/`; `VITE_API_MODE=http` usa `src/api/http.ts`, que converte o
+  formato atual do backend (`{ categoria, severidade }`) em 1 folha sem região.
+- Antes de qualquer envio, `src/api/validacao.ts` valida no navegador: formato pelos **magic bytes** (JPG/PNG),
+  tamanho (**10 MB**) e decodificação da imagem.
+- Toda resposta, mock ou real, passa por `src/api/normalizar.ts`: coordenadas fora de 0–1 descartam só a região,
+  categorias desconhecidas são ignoradas e ids duplicados são corrigidos.
+- As telas importam apenas de `src/api/index.ts`.
+- **Histórico (RF05):** `src/api/historico.ts` grava `AnaliseSalva` no IndexedDB deste navegador (sem login), com a
+  foto reduzida e uma miniatura, e permite listar, abrir, salvar e excluir. Se o histórico passar para o backend
+  (Frente 6), só esse arquivo muda.
 
-const ATRASO_SIMULADO_MS = 1500;
+### Como o mock escolhe a resposta
 
-/**
- * Substitui a chamada real ao coffea-backend enquanto ele não estiver pronto.
- * Quando o backend real chegar, só esta função deve mudar — a assinatura
- * (Promise<DiagnosticoResponse>) deve continuar igual para não afetar as telas.
- */
-export async function enviarImagemParaDiagnostico(
-  imagem: File
-): Promise<DiagnosticoResponse> {
-  await new Promise((resolve) => setTimeout(resolve, ATRASO_SIMULADO_MS));
+1. **Cenário forçado:** `?cenario=<id>` na URL (fica gravado na sessão; `?cenario=auto` limpa) ou o painel de
+   cenários (botão de frasco, só em `npm run dev`). Ids: `saudavel`, `saudavel_sem_folhas`,
+   `uma_folha_com_regiao`, `uma_folha_sem_regiao`, `varias_folhas`, `varias_folhas_mistas` e `erro:<tipo>`.
+2. **Fotos conhecidas, pelo nome do arquivo:**
+   - `planta-cafe-doente`: ferrugem + cercosporiose, com círculos calibrados sobre as folhas reais;
+   - `planta-cafe-saudavel` e `teste-retrato`: saudável;
+   - `teste-paisagem`: N folhas com região;
+   - `teste-quadrada`: 1 folha sem região (simula o backend atual);
+   - `teste-sem-planta`, `teste-especie-incorreta` e `teste-baixa-qualidade`: os erros correspondentes
+     (`teste-baixa-qualidade` → `baixa_confianca`).
+3. **Qualquer outra foto:** cenário de sucesso sorteado pelo hash do arquivo (mesma foto → mesmo resultado).
 
-  // TODO(frente-5): trocar por lógica de mock configurável (ex.: querystring ou botão de
-  // debug) para forçar cada um dos 5 tipos de erro e os estados "0 folhas" / "1 folha sem
-  // região" / "N folhas com região" durante o desenvolvimento das telas.
-  return {
-    status: "sucesso",
-    imagemUrl: URL.createObjectURL(imagem),
-    folhas: [
-      {
-        id: "folha-1",
-        categoria: "ferrugem",
-        severidade: "alta",
-        regiao: { x: 0.3, y: 0.4, raio: 0.08 },
-      },
-    ],
-  };
-}
-```
+Latência de 1,5–2,5 s; `?atraso=<ms>` força outro valor (ex.: `8000` para ver o aviso de demora, `auto` volta ao
+padrão). As fixtures de formato e tamanho (`teste-formato-*`, `teste-extensao-trocada.png`,
+`teste-arquivo-grande.png`) são barradas pela validação real, não pelo mock.
+
+## Decisões da Frente 5 (a confirmar com as Frentes 6/9)
+
+- **`baixa_confianca` (RF07)** virou um 6º tipo de erro. O Figma ("Uploads erro 5") mostra baixa confiança, e
+  `erro_desconhecido` continua necessário para falhas de rede ou servidor.
+- **`raio`** é relativo à menor dimensão da imagem; a região é relativa à imagem enviada, sem recorte.
+- **`folhas`** pode trazer folhas saudáveis; a UI só destaca as demais.
 
 ## Casos que a UI precisa suportar desde já (mesmo sem backend real)
 
 - Sucesso com **0 folhas problemáticas** (planta saudável) — tela 7 no estado vazio.
 - Sucesso com **1 folha**, com e sem `regiao` preenchida.
 - Sucesso com **N folhas**, cada uma podendo ter categoria/severidade diferente.
-- Cada um dos **5 tipos de erro** (`TipoErroUpload`).
+- Cada um dos **6 tipos de erro** (`TipoErroUpload`).
 - Latência simulada perceptível (a tela de carregamento precisa realmente aparecer, não só piscar).

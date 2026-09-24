@@ -23,6 +23,42 @@ sub-view dentro de "Visualização avançada" ("Detalhe de um problema"), em vez
 máquina de estado linear original. As telas de carregamento e erro continuam sendo estados dentro da
 aba Upload, não telas de nível superior separadas.
 
+## Como foi implementado (Frente 5, 24/09/2026)
+
+| Tela | Rota | Arquivo |
+|---|---|---|
+| 1 Inicial | `/` | `pages/TelaInicial.tsx` |
+| 2–5 Upload (vazio, carregando, sucesso, erros) | `/enviar` | `pages/hub/AbaUpload.tsx` |
+| 6 Resumo técnico | `/resumo` | `pages/hub/AbaResumo.tsx` |
+| 7 Visualização avançada | `/visualizacao` | `pages/hub/AbaVisualizacao.tsx` |
+| 8 Detalhe de um problema | `/visualizacao/:folhaId` | `pages/hub/DetalheProblema.tsx` |
+| 9 Salvar análise (modal) | — | `pages/hub/ModalSalvarAnalise.tsx` |
+| 10 Histórico | `/historico` | `pages/hub/AbaHistorico.tsx` |
+
+Decisões que diferem dos wireframes, ou que os completam:
+
+- **Rotas com URL:** o botão voltar funciona (detalhe → visualização) e recarregar mantém a aba. Resumo e
+  Visualização sem uma análise em foco redirecionam para `/enviar`.
+- **Navegação no celular:** barra de abas fixa no rodapé (ícone + rótulo curto), no lugar do menu recolhível
+  no topo. Troca de aba com um toque e mostra as abas bloqueadas (com cadeado; tocar explica o motivo).
+- **Erros:** 6 estados, não 5 — o Figma ("Uploads erro 5") é a baixa confiança do RF07, e o erro desconhecido
+  (rede/servidor) continua existindo. Ver `01-requisitos-frontend.md`.
+- **"Tirar foto" no desktop:** abre um modal de webcam (prévia só para enquadrar; captura uma única foto
+  estática). No celular, usa a câmera nativa. Sem câmera ou sem permissão, cai para o seletor de arquivo.
+- **Tela 3:** a própria foto aparece no card com uma lente de varredura, um aviso depois de ~6 s e um botão
+  Cancelar, que volta ao estado anterior.
+- **Tela 7 sem `regiao`:** mostra só a lista, com uma nota explicando; no caso misto, círculos só onde
+  houver região. Os círculos têm número, então a cor nunca é o único sinal.
+- **Tela 8:** a lente mostra a região ampliada da própria foto enviada (ou a foto inteira, sem região), com
+  transição a partir do círculo clicado e navegação entre folhas anterior/próxima.
+- **"Salvar análise"** aparece no Resumo, na Visualização (inclusive no caso saudável) e no Detalhe. Depois
+  de salvar, vira "Salva no histórico".
+- **Histórico:** fica no navegador (IndexedDB). Cada card tem um botão de **excluir**, com confirmação.
+  Excluir a análise que está em foco faz ela voltar a poder ser salva.
+- **Acréscimos dentro das telas existentes:** fotos de exemplo para experimentar, arrastar/soltar e colar
+  imagem, "Tentar de novo" no erro desconhecido e um selo "Demonstração · resultados simulados" enquanto o
+  mock estiver ativo.
+
 ---
 
 ## Tela 1 — Página inicial

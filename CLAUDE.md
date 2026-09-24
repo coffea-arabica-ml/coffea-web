@@ -50,26 +50,30 @@ vier com 1 folha sem coordenadas quanto com N folhas com coordenadas. Ver detalh
 - Oxlint como linter
 - Deploy alvo: Vercel
 
-## Estrutura de pastas atual do esqueleto
+## Estrutura de pastas (hub com abas)
 
-coffea-web/
-├── src/
-│ ├── pages/ # TelaInicial, TelaUpload, TelaCarregando, TelaResultado, TelaErro
-│ ├── api/ # diagnostico.ts — chamada ao coffea-backend (hoje: será um mock)
-│ ├── assets/ # logo, fundos, fotos de exemplo (produção); assets/exemplos/teste-* são
-│ │ # fixtures de dev para simular erros de upload, nunca exibidas ao usuário
-│ ├── App.tsx # Decide qual tela mostrar (máquina de estado simples)
-│ ├── main.tsx
-│ └── index.css
-├── .env # VITE_API_URL (local, não versionado)
-├── .env.example
-├── vite.config.ts
-└── package.json
+```
+src/
+├── api/         # ÚNICO lugar que conhece o formato do backend: types, validação (magic bytes/10 MB),
+│                # normalização, adapter http e mock/ (cenários). Telas importam só de api/index.ts
+├── domain/      # regras puras sobre os tipos do contrato: categorias (textos/cores), severidade, resumo
+├── state/       # SessaoAnalise: a análise "em foco" (vazia | enviando | sucesso | erro);
+│                # Historico: lista/salvar/abrir/excluir sobre src/api/historico.ts (IndexedDB)
+├── components/  # UI reutilizável (MolduraImagem, SeletorImagem, CapturaWebcam, Modal, Toast…)
+├── layout/      # ShellHub + NavegacaoAbas (topo no desktop, barra no rodapé no celular)
+├── pages/       # TelaInicial + hub/ (AbaUpload, AbaResumo, AbaVisualizacao, DetalheProblema,
+│                #   ModalSalvarAnalise, AbaHistorico) — mapa completo em 02-fluxo-de-telas.md
+├── content/     # textos.ts — microcopy central (instrução de captura, mensagens de erro)
+├── dev/         # PainelCenarios — só em `npm run dev`
+├── assets/      # logo, fundos, fotos de exemplo; assets/exemplos/teste-* são fixtures de dev,
+│                # nunca importadas pelo código (o painel de dev as busca pelo servidor do Vite)
+└── App.tsx      # rotas (react-router, modo data)
+```
 
-
-⚠️ Essa estrutura foi pensada para um fluxo linear de 5 telas. A Frente 4 evoluiu para uma IA em
-**hub com abas** (ver `02-fluxo-de-telas.md`) — isso provavelmente exige reestruturar `pages/` e o
-raciocínio de estado do `App.tsx`. Não migre isso sozinho sem entender o mapa de telas completo primeiro.
+Rotas: `/` (T1), `/enviar` (T2–T5), `/resumo` (T6), `/visualizacao` (T7), `/visualizacao/:folhaId` (T8),
+`/historico` (T10); a T9 é um modal. Resumo, Visualização e Detalhe redirecionam para `/enviar` sem uma
+análise em foco. Pastas em inglês, identificadores em português. `VITE_API_MODE=mock|http` escolhe mock
+(padrão) ou backend real; o mock aceita `?cenario=` e `?atraso=` (detalhes em `03-contrato-api-mock.md`).
 
 ## Documentos de referência
 
