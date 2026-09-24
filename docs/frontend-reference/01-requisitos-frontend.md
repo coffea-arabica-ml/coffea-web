@@ -36,6 +36,10 @@ Cada um precisa de ícone, mensagem no card e texto lateral próprios (ver `02-f
 4. **Arquivo acima do limite de tamanho** — upload excede o limite definido.
 5. **Erro desconhecido** — catch-all para falhas não previstas (ex.: erro de rede, erro do servidor).
 
+**Decisão da Frente 5 (24/09/2026):** o Figma ("Uploads erro 5") representa a baixa confiança do RF07, não o
+erro desconhecido. Os dois foram mantidos: a UI trata **6 estados** — os 5 acima mais `baixa_confianca` (ver
+`03-contrato-api-mock.md`).
+
 ## ⚠️ Pendência técnica crítica (RF09)
 
 O dataset BRACOL (RD01), usado no treinamento do modelo, contém apenas folhas já recortadas

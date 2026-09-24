@@ -1,42 +1,68 @@
-import { useState } from 'react'
+import { lazy, Suspense } from 'react'
+import { createBrowserRouter, Navigate, Outlet, RouterProvider, ScrollRestoration } from 'react-router'
+import { ToastProvider } from './components/Toast'
+import { ExigeAnalise, ShellHub } from './layout/ShellHub'
 import { TelaInicial } from './pages/TelaInicial'
-import { TelaUpload } from './pages/TelaUpload'
-import { TelaCarregando } from './pages/TelaCarregando'
-import { TelaResultado } from './pages/TelaResultado'
-import { TelaErro } from './pages/TelaErro'
-import { diagnosticarFolha } from './api/diagnostico'
+import { AbaUpload } from './pages/hub/AbaUpload'
+import { HistoricoProvider } from './state/Historico'
+import { SessaoAnaliseProvider } from './state/SessaoAnalise'
 
-type Tela = 'inicial' | 'upload' | 'carregando' | 'resultado' | 'erro'
+// Carregado sob demanda e só em desenvolvimento — some do build de produção.
+const PainelCenarios = import.meta.env.DEV ? lazy(() => import('./dev/PainelCenarios')) : null
 
-type Resultado = {
-  categoria: string
-  severidade: string
+function Raiz() {
+  return (
+    <>
+      <ScrollRestoration />
+      <Outlet />
+      {PainelCenarios && (
+        <Suspense>
+          <PainelCenarios />
+        </Suspense>
+      )}
+    </>
+  )
 }
 
+// Landing e Enviar entram no bundle inicial; as telas de resultado e o histórico carregam sob demanda.
+const router = createBrowserRouter([
+  {
+    element: <Raiz />,
+    children: [
+      { path: '/', element: <TelaInicial /> },
+      {
+        element: <ShellHub />,
+        children: [
+          { path: '/enviar', element: <AbaUpload /> },
+          { path: '/historico', lazy: async () => ({ Component: (await import('./pages/hub/AbaHistorico')).AbaHistorico }) },
+          {
+            element: <ExigeAnalise />,
+            children: [
+              { path: '/resumo', lazy: async () => ({ Component: (await import('./pages/hub/AbaResumo')).AbaResumo }) },
+              { path: '/visualizacao', lazy: async () => ({ Component: (await import('./pages/hub/AbaVisualizacao')).AbaVisualizacao }) },
+              {
+                path: '/visualizacao/:folhaId',
+                lazy: async () => ({ Component: (await import('./pages/hub/DetalheProblema')).DetalheProblema }),
+              },
+            ],
+          },
+        ],
+      },
+      { path: '*', element: <Navigate to="/" replace /> },
+    ],
+  },
+])
+
 function App() {
-  const [tela, setTela] = useState<Tela>('inicial')
-  const [resultado, setResultado] = useState<Resultado | null>(null)
-  const [erro, setErro] = useState('')
-
-  async function handleImagemSelecionada(arquivo: File) {
-    setTela('carregando')
-    try {
-      const resultado = await diagnosticarFolha(arquivo)
-      setResultado(resultado)
-      setTela('resultado')
-    } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Erro desconhecido ao analisar a imagem.')
-      setTela('erro')
-    }
-  }
-
-  if (tela === 'inicial') return <TelaInicial onIniciar={() => setTela('upload')} />
-  if (tela === 'upload') return <TelaUpload onImagemSelecionada={handleImagemSelecionada} />
-  if (tela === 'carregando') return <TelaCarregando />
-  if (tela === 'resultado' && resultado) return <TelaResultado resultado={resultado} onNovaAnalise={() => setTela('upload')} />
-  if (tela === 'erro') return <TelaErro mensagem={erro} onTentarNovamente={() => setTela('upload')} />
-
-  return null
+  return (
+    <ToastProvider>
+      <SessaoAnaliseProvider>
+        <HistoricoProvider>
+          <RouterProvider router={router} />
+        </HistoricoProvider>
+      </SessaoAnaliseProvider>
+    </ToastProvider>
+  )
 }
 
 export default App

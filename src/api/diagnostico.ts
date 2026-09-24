@@ -1,23 +1,35 @@
-export type ResultadoDiagnostico = {
-  categoria: string
-  severidade: string
+import { modoApi } from './config'
+import { httpDiagnosticar } from './http'
+import { mockDiagnosticar } from './mock/mockDiagnostico'
+import { normalizarResposta } from './normalizar'
+import type { DiagnosticoResponse } from './types'
+import { validarImagem } from './validacao'
+
+export interface OpcoesEnvio {
+  /** Cancela o envio; a promessa rejeita com AbortError e nenhuma resposta é produzida. */
+  signal?: AbortSignal
 }
 
-// TODO (Frente 6): confirmar a URL real do coffea-backend quando estiver no ar
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+/**
+ * Ponto único de entrada do diagnóstico. A assinatura (Promise<DiagnosticoResponse>) é o
+ * contrato com as telas: trocar mock ↔ backend real não pode mudar nada fora de src/api/.
+ * Erros esperados (validação, rede, servidor) viram `DiagnosticoErro`; só o cancelamento rejeita.
+ */
+export async function enviarImagemParaDiagnostico(imagem: File, opcoes: OpcoesEnvio = {}): Promise<DiagnosticoResponse> {
+  const { signal } = opcoes
+  const erroValidacao = await validarImagem(imagem)
+  if (erroValidacao) return erroValidacao
+  signal?.throwIfAborted()
 
-export async function diagnosticarFolha(imagem: File): Promise<ResultadoDiagnostico> {
-  const formData = new FormData()
-  formData.append('imagem', imagem)
-
-  const resposta = await fetch(`${API_URL}/diagnostico`, {
-    method: 'POST',
-    body: formData,
-  })
-
-  if (!resposta.ok) {
-    throw new Error('Não foi possível analisar a imagem. Tente novamente.')
+  try {
+    const bruta = modoApi === 'http' ? await httpDiagnosticar(imagem, signal) : await mockDiagnosticar(imagem, signal)
+    return normalizarResposta(bruta, () => URL.createObjectURL(imagem))
+  } catch (e) {
+    if (signal?.aborted) throw e
+    return {
+      status: 'erro',
+      tipo: 'erro_desconhecido',
+      mensagem: e instanceof Error ? e.message : 'Falha inesperada ao analisar a imagem.',
+    }
   }
-
-  return resposta.json()
 }

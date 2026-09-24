@@ -25,14 +25,26 @@ Se quiser extrair alguma cor específica de um PDF como referência, o jeito mai
 correspondente (mesma imagem, mais fácil de inspecionar) num editor de imagem e usar o conta-gotas de
 cor, em vez de adivinhar a olho.
 
-## O único ponto ainda não resolvido: ícones de estado/ação
+## Identidade visual adotada (Frente 5, 24/09/2026)
 
-Não há, em nenhum lugar do repositório, ícones prontos para: câmera, escolher arquivo, os 5 estados de
-erro (tela 5) e confirmação de sucesso. Duas opções, ambas válidas:
+Os tokens ficam em `src/index.css` (bloco `@theme` do Tailwind v4). Mude a cor lá, nunca direto nos componentes.
 
-1. Usar uma biblioteca de ícones pronta (ex. `lucide-react`) — mais rápido, consistente, sem depender de
-   mais uma rodada de geração de imagem.
-2. Gerar/desenhar ícones específicos, se quiser um estilo mais autoral.
+- **Conceito "lente de campo":** o círculo, que já está na marca Cafélens e nos círculos do RF04, é o motivo
+  visual do app. Aparece na lente que varre a foto durante a análise, nos círculos numerados e na lente
+  ampliada do detalhe.
+- **Paleta:** papel quente `#f5f3ec`, tinta verde-escura `#17231b` e o verde do logo `#2f6b3b`. O
+  vermelho-cereja `#c24a31` marca sinais encontrados e erros.
+- **Cores das categorias:** base Okabe-Ito, segura para daltonismo — ferrugem `#d55e00`, bicho-mineiro
+  `#c99400`, cercosporiose `#b8538f`, phoma `#0072b2`. Nunca aparecem sozinhas: sempre vêm com número ou texto.
+- **Tipografia:** Fraunces (títulos) + Instrument Sans (texto), auto-hospedadas via `@fontsource-variable`,
+  sem chamadas a serviços externos.
+- **Tema:** a landing é escura, sobre `fundo-1.jpg`; o app é claro, pensando em leitura sob sol.
+- **Movimento:** CSS + View Transitions. Tudo é desligado com `prefers-reduced-motion`.
+- **Contraste:** todas as telas e estados passaram no axe-core (WCAG AA) em 24/09/2026. Ao criar uma cor de
+  texto nova, confira o contraste contra `papel` e `superficie`.
 
-Não é bloqueante — pode ser decidido durante a implementação da tela que primeiro precisar de um ícone,
-não precisa ser resolvido antes de começar.
+## Ícones: resolvido
+
+Usamos `lucide-react` (câmera, arquivo, os 6 estados de erro, sucesso, navegação). A ilustração do estado
+vazio do upload (visor de câmera com um cafeeiro) é um SVG próprio em
+`src/components/IlustracaoEnquadramento.tsx`.
