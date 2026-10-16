@@ -14,7 +14,7 @@ Fonte de verdade: documento-mestre da Frente 3. Este arquivo é um recorte, filt
 | RF05 | Manter histórico dos diagnósticos realizados por folha, consultável depois. | Desejável | Tela "Histórico", aba do hub. |
 | RF06 | Aceitar envio da imagem por câmera do dispositivo ou seleção de arquivo existente. Sempre uma imagem estática por vez (nunca vídeo contínuo). | Essencial | Botões "Escolher arquivo" e "Tirar foto" na tela de upload. |
 | RF07 | Sinalizar quando a imagem tiver baixa probabilidade de conter planta de café diagnosticável (confiança abaixo de limiar a definir pela Modelagem), sugerindo reenvio. | Desejável | Limiar exato ainda não definido — tratar como mais um estado/erro possível. |
-| RF09 | Identificar individualmente cada folha visível na planta e gerar diagnóstico separado por folha, em vez de tratar múltiplas folhas como erro. | **Essencial (elevado de Desejável)** | ⚠️ Ver pendência técnica abaixo — isso ainda não está confirmado como tecnicamente viável no prazo. |
+| RF09 | Identificar individualmente cada folha visível na planta e gerar diagnóstico separado por folha, em vez de tratar múltiplas folhas como erro. | **Essencial (elevado de Desejável)** | Ver a situação da pendência técnica abaixo: o backend já devolve a lista de folhas com região. |
 
 ## Requisitos Não Funcionais relevantes
 
@@ -40,14 +40,17 @@ Cada um precisa de ícone, mensagem no card e texto lateral próprios (ver `02-f
 erro desconhecido. Os dois foram mantidos: a UI trata **6 estados** — os 5 acima mais `baixa_confianca` (ver
 `03-contrato-api-mock.md`).
 
-## ⚠️ Pendência técnica crítica (RF09)
+## Pendência técnica do RF09
 
 O dataset BRACOL (RD01), usado no treinamento do modelo, contém apenas folhas já recortadas
 individualmente — **sem** fotos de planta inteira e **sem** anotação de localização de múltiplas folhas.
 Detectar múltiplas folhas em uma foto é um problema de detecção de objetos/segmentação de instâncias,
-distinto da classificação, e nenhuma frente (Dados/Modelagem) confirmou ainda que isso é viável dentro
-do prazo. A Frente 3 registrou isso como pendência que pode configurar mudança de escopo sujeita à
-aprovação do professor (RI01) — **ainda não resolvida**.
+distinto da classificação. A Frente 3 registrou isso como pendência que podia configurar mudança de escopo
+sujeita à aprovação do professor (RI01).
+
+**Situação em 16/10/2026:** o `coffea-ml` tem um detector de folhas, e o `coffea-backend` (commit `0e33bce`)
+devolve a lista de folhas da foto, cada uma com `regiao` (ver `03-contrato-api-mock.md`). O site foi testado
+de ponta a ponta contra esse backend. O acerto do modelo não é avaliado pela Frente 5.
 
 **O que isso significa na prática para este repositório:**
 

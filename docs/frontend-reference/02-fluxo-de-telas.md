@@ -115,14 +115,15 @@ Decisões que diferem dos wireframes, ou que os completam:
 ## Tela 7 — Visualização avançada
 
 - **Objetivo:** localizar visualmente os problemas identificados sobre a própria imagem.
-- **Requisito atendido:** RF04 (⚠️ depende da pendência técnica do RF09 — ver `01-requisitos-frontend.md`).
+- **Requisito atendido:** RF04 (depende da localização por folha do RF09; o backend já devolve `regiao` —
+  ver `01-requisitos-frontend.md`).
 - **Estado com problemas:** imagem enviada com **círculos coloridos** ao redor de cada problema
   identificado (uma cor por categoria); ao lado, uma lista de tópicos correspondentes, um por cor/folha.
 - **Estado vazio (nada identificado):** em vez dos círculos e da lista, aparece só a imagem e, ao lado,
   um texto explicando que nada foi identificado, mais um texto de orientação geral de cuidado com a
   planta.
 - **Nota de implementação:** se a resposta não trouxer coordenadas de região (`regiao` ausente no
-  contrato mock), esta tela deve degradar para uma lista simples de problemas identificados, sem tentar
+  contrato), esta tela deve degradar para uma lista simples de problemas identificados, sem tentar
   posicionar círculos — nunca falhar ou ficar em branco.
 
 ## Tela 8 — Detalhe de um problema

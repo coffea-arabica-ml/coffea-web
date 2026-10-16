@@ -14,8 +14,25 @@ cp .env.example .env   # opcional: por padrão o app usa o serviço simulado (mo
 npm run dev
 ```
 
-Por padrão (`VITE_API_MODE=mock`) o app **não precisa** do [coffea-backend](../coffea-backend). Para usar o
-backend real, defina `VITE_API_MODE=http` e `VITE_API_URL` no `.env`.
+Por padrão (`VITE_API_MODE=mock`) o app **não precisa** do [coffea-backend](../coffea-backend).
+
+### Usando o backend real
+O site chama o `POST /diagnostico` do coffea-backend, que roda o modelo do coffea-ml na mesma máquina.
+
+1. Deixe os repositórios lado a lado (`coffea-arabica-ml/coffea-web`, `coffea-backend` e `coffea-ml`, com os
+   pesos do modelo) e suba o backend conforme o README dele. Ele escuta na porta 8000.
+2. Espere `http://localhost:8000/` mostrar `"carregado": true` no bloco `modelo` (alguns segundos; se vier
+   `false`, o campo `motivo` diz por quê, e o diagnóstico responde 503).
+3. No `.env` deste repositório:
+   ```
+   VITE_API_MODE=http
+   VITE_API_URL=http://localhost:8000
+   ```
+4. Rode (ou reinicie) o `npm run dev`: o Vite só lê o `.env` na subida.
+
+O backend faz uma inferência por vez; com fila, o site mostra o aviso de demora. O deploy na Vercel não
+alcança um backend rodando no PC: a URL de produção fica para a Frente 10. O contrato e os códigos HTTP
+estão em `docs/frontend-reference/03-contrato-api-mock.md`.
 
 No modo mock, `?cenario=<id>` e `?atraso=<ms>` na URL forçam um resultado ou uma latência. Em `npm run dev` há
 também um painel de cenários (botão de frasco, canto inferior esquerdo) que envia as fixtures de teste. Veja

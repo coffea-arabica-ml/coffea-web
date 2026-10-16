@@ -19,30 +19,32 @@ O nome voltado ao usuário é **Cafélens** (não "Coffea" — esse é só o nom
 técnico dos repositórios, ex. coffea-web). Todo texto visível na UI deve
 usar "Cafélens".
 
-## Fase atual: SÓ o frontend web, sem depender do backend real
+## Fase atual: o backend real existe; o mock continua sendo o padrão
 
 O desenvolvimento segue um modelo "em escada": cada frente pode adiantar trabalho antes de sua vez
 chegar, mas a versão final de uma frente só se consolida depois que a frente anterior está fechada. Hoje:
 
-- O `coffea-backend` existe apenas como esqueleto, com resposta simulada — **não é a versão final**.
-- A Frente 9 (Modelagem) ainda não confirmou se a detecção individual de folhas é viável no prazo (ver
-  pendência crítica abaixo).
-- **Por isso, esta etapa constrói o `coffea-web` inteiro contra um serviço mock local**, isolado em
-  `src/api/`, seguindo o contrato provisório descrito em `docs/frontend-reference/03-contrato-api-mock.md`.
-  Quando o backend real estiver pronto, só essa camada deve mudar — nenhum componente de tela deve
-  fazer suposições diretas sobre o formato da resposta da API.
+- O `coffea-backend` (commit `0e33bce`) roda a inferência real do `coffea-ml` no `POST /diagnostico` e
+  devolve o contrato de `docs/frontend-reference/03-contrato-api-mock.md`. O site foi testado de ponta a
+  ponta contra ele em 16/10/2026 (`VITE_API_MODE=http`; como subir: `README.md`).
+- **O mock local continua sendo o modo padrão** (`VITE_API_MODE=mock`), para trabalhar sem backend e para
+  exercitar estados que o modelo raramente produz (ex.: `especie_incorreta`, folha sem `regiao`).
+- Toda suposição sobre a resposta segue isolada em `src/api/`: nenhum componente de tela faz suposições
+  diretas sobre o formato da resposta da API.
+- O deploy (Vercel) não alcança um backend rodando no PC: a URL de produção do backend é assunto da Frente 10.
 
-## Pendência crítica que afeta toda a Frente 5 (leia antes de decidir estrutura de dados)
+## RF09 e o formato de dados (leia antes de decidir estrutura de dados)
 
 O requisito RF09 (identificar cada folha individualmente na foto da planta) foi elevado de Desejável
-para **Essencial** na v4 dos Requisitos, mas a própria Frente 3 registra que o dataset BRACOL não
-sustenta essa detecção — só tem folhas já recortadas — e nenhuma frente confirmou ainda um caminho
-técnico viável no prazo. Isso pode virar mudança de escopo sujeita a aprovação do professor.
+para **Essencial** na v4 dos Requisitos. A Frente 3 tinha registrado que o dataset BRACOL não sustenta essa
+detecção sozinho (só tem folhas já recortadas). Hoje o `coffea-ml` tem um detector de folhas, e o backend
+devolve a **lista de folhas**, cada uma com `regiao` (centro e raio relativos à foto). Este repositório não
+avalia o acerto do modelo.
 
-**Implicação prática para este repositório:** o contrato mock assume uma **lista de folhas**, mas cada
-folha tem localização (`regiao`) **opcional**. Nenhum componente deve assumir "sempre existe uma
-localização" nem "sempre existe mais de uma folha" — o app precisa funcionar tanto se a resposta final
-vier com 1 folha sem coordenadas quanto com N folhas com coordenadas. Ver detalhes no contrato mock.
+**Implicação prática para este repositório:** a resposta é uma **lista de folhas**, e `regiao` continua
+**opcional** no tipo. Nenhum componente deve assumir "sempre existe uma localização" nem "sempre existe
+mais de uma folha": uma foto de uma folha só volta como 1 folha, o normalizador descarta região inválida, e o
+mock ainda produz folhas sem coordenadas. Ver detalhes no contrato.
 
 ## Stack e stack decisions (já fixadas, não renegociar sem motivo forte)
 
