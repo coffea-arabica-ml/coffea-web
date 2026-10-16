@@ -1,5 +1,6 @@
-// Contrato PROVISÓRIO entre o coffea-web e o coffea-backend.
+// Contrato entre o coffea-web e o coffea-backend (implementado no backend no commit 0e33bce).
 // Fonte: docs/frontend-reference/03-contrato-api-mock.md — mantenha os dois em sincronia.
+// Estes são os tipos já normalizados que as telas recebem; o JSON do backend passa antes por normalizar.ts.
 
 export type CategoriaEstresse =
   | 'saudavel'
@@ -18,6 +19,7 @@ export type NivelSeveridade =
 export type TipoErroUpload =
   | 'planta_nao_identificada'
   | 'formato_invalido'
+  /** Fica no contrato e no mock, mas o backend não produz (não há dados de outras plantas). */
   | 'especie_incorreta'
   | 'arquivo_muito_grande'
   /** RF07: a imagem tem baixa probabilidade de conter um cafeeiro diagnosticável. */
@@ -30,7 +32,7 @@ export interface RegiaoFolha {
   x: number
   /** Centro, relativo (0 a 1) à altura da imagem. */
   y: number
-  /** PROVISÓRIO: raio relativo (0 a 1) à MENOR dimensão da imagem. */
+  /** Raio relativo (0 a 1) à MENOR dimensão da imagem: o do círculo de mesma área da folha. */
   raio: number
 }
 
@@ -39,17 +41,19 @@ export interface FolhaDiagnostico {
   categoria: CategoriaEstresse
   severidade: NivelSeveridade
   /**
-   * PROVISÓRIO — pode não vir preenchido. Se ausente, a Visualização avançada
+   * O backend preenche em toda folha, mas continua opcional: o normalizador descarta região
+   * inválida, e registros antigos podem não ter. Se ausente, a Visualização avançada
    * degrada para uma lista simples, sem círculos posicionados.
    */
   regiao?: RegiaoFolha
-  /** Texto de cuidado da categoria — se ausente, a UI usa o catálogo local. */
+  /** Texto de cuidado da categoria — o backend não envia; a UI usa o catálogo local. */
   comoCuidar?: string
   comoPrevenir?: string
 }
 
 export interface DiagnosticoSucesso {
   status: 'sucesso'
+  /** O backend não envia: o normalizador preenche com a foto local (object URL). */
   imagemUrl: string
   /**
    * Nunca assuma tamanho fixo: pode vir com 0, 1 ou N folhas, e pode incluir

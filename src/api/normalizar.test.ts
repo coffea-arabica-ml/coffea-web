@@ -29,6 +29,25 @@ describe('normalizarResposta', () => {
     expect(r.status === 'sucesso' && r.folhas.map((f) => f.severidade)).toEqual(['saudavel', 'muito_baixa'])
   })
 
+  it('resposta real do backend: descarta os extras e preenche imagemUrl com a foto local', () => {
+    // Folha da resposta do coffea-backend para 20190831_163104.jpg (BRACOT de treino).
+    const r = normalizarResposta(
+      {
+        status: 'sucesso',
+        folhas: [
+          { id: 'folha-4', categoria: 'ferrugem', severidade: 'muito_baixa', regiao: { x: 0.4903, y: 0.6606, raio: 0.1449 }, confianca: 0.9691, scoreDeteccao: 0.9011, caixa: [0.3808, 0.4716, 0.5858, 0.9068], cortadaNaBorda: false },
+        ],
+        detalhes: { plano: 'deteccao', decisao: 'duas_etapas' },
+      },
+      url,
+    )
+    expect(r).toEqual({
+      status: 'sucesso',
+      imagemUrl: 'blob:padrao',
+      folhas: [{ id: 'folha-4', categoria: 'ferrugem', severidade: 'muito_baixa', regiao: { x: 0.4903, y: 0.6606, raio: 0.1449 } }],
+    })
+  })
+
   it('transforma lixo e tipos de erro desconhecidos em erro_desconhecido', () => {
     expect(normalizarResposta(null, url)).toMatchObject({ status: 'erro', tipo: 'erro_desconhecido' })
     expect(normalizarResposta({ status: 'erro', tipo: 'outro' }, url)).toMatchObject({ tipo: 'erro_desconhecido' })
