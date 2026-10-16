@@ -127,8 +127,8 @@ modelo podem trazer também `detalhes` (ignorado).
 - **`especie_incorreta` não é produzido:** não há dados de outras plantas para treinar essa recusa. Ele
   continua no contrato, no mock e na tela, para o caso de vir a ser produzido.
 - **CORS:** todas as respostas, inclusive 4xx e 5xx, trazem `Access-Control-Allow-Origin`.
-- **Sem corpo do contrato** (ex.: um proxy devolvendo HTML): o 413 e o 415 seguem pelo código, com mensagem
-  vazia, e a tela usa o próprio texto; os demais viram `erro_desconhecido`.
+- **Sem corpo do contrato** (ex.: um proxy devolvendo HTML): o 413 e o 415 seguem pelo código; os demais viram
+  `erro_desconhecido`. Em todos, a mensagem fica vazia e a tela usa o próprio texto.
 
 ## Serviço (implementado em `src/api/`)
 
@@ -142,6 +142,10 @@ modelo podem trazer também `detalhes` (ignorado).
   tamanho (**10 MB**) e decodificação da imagem. O que ela barra não chega ao backend.
 - Toda resposta, mock ou real, passa por `src/api/normalizar.ts`: coordenadas fora de 0–1 descartam só a região,
   categorias desconhecidas são ignoradas, ids duplicados são corrigidos e campos fora do contrato são descartados.
+- **Mensagens na tela:** a tela de erro mostra a `mensagem` em `formato_invalido`, `arquivo_muito_grande` e
+  `erro_desconhecido` (nos demais tipos, usa o texto do Cafélens). Por isso, toda mensagem que `src/api/` produz é
+  escrita para o usuário, em português, sem código HTTP nem texto de exceção — a exceção vai para o `console.error`.
+  Sem mensagem (ex.: falha de conexão), a tela usa o texto padrão do tipo.
 - As telas importam apenas de `src/api/index.ts`.
 - **Histórico (RF05):** `src/api/historico.ts` grava `AnaliseSalva` no IndexedDB deste navegador (sem login), com a
   foto reduzida e uma miniatura, e permite listar, abrir, salvar e excluir. O coffea-backend também tem um
@@ -187,5 +191,5 @@ real, por exemplo, `teste-sem-planta` e `teste-baixa-qualidade` voltaram como su
 - Latência perceptível: a tela de carregamento precisa realmente aparecer, e o aviso de demora (6 s) aparece
   quando o backend está com fila (ele faz uma inferência por vez).
 
-O teste com o backend real não produziu sucesso com 0 folhas (uma foto sem folhas voltou como
-`planta_nao_identificada`), nem folha sem `regiao`. Esses dois casos continuam cobertos pelo mock.
+O teste com o backend real não produziu sucesso com 0 folhas (uma imagem cinza lisa, gerada para o teste, voltou
+como `planta_nao_identificada`), nem folha sem `regiao`. Esses dois casos continuam cobertos pelo mock.

@@ -10,6 +10,9 @@ const TEMPO_LIMITE_MS = 30_000
  * Códigos HTTP: 200 traz sucesso ou erro tipado do modelo; 413 e 415 viram o tipo pelo código;
  * nos demais não-OK (422, 500, 503), o `tipo` do corpo é repassado. A mensagem do corpo segue
  * junto — sem ela, fica vazia e a tela usa o próprio texto.
+ *
+ * A mensagem pode ir para a tela: aqui só se escreve texto para o usuário, em português, sem
+ * código HTTP nem texto de exceção.
  */
 export async function httpDiagnosticar(imagem: File, signal?: AbortSignal): Promise<unknown> {
   const formData = new FormData()
@@ -23,7 +26,8 @@ export async function httpDiagnosticar(imagem: File, signal?: AbortSignal): Prom
     resposta = await fetch(`${API_URL}/diagnostico`, { method: 'POST', body: formData, signal: sinal })
   } catch (e) {
     if (signal?.aborted) throw e
-    const mensagem = tempoLimite.aborted ? 'O servidor demorou demais para responder.' : 'Não foi possível conectar ao servidor.'
+    // Falha de conexão: sem mensagem, a tela explica com o texto padrão (conexão ou servidor).
+    const mensagem = tempoLimite.aborted ? 'O servidor demorou demais para responder.' : ''
     return { status: 'erro', tipo: 'erro_desconhecido', mensagem }
   }
 
@@ -35,9 +39,10 @@ export async function httpDiagnosticar(imagem: File, signal?: AbortSignal): Prom
   if (resposta.status === 415) return { status: 'erro', tipo: 'formato_invalido', mensagem }
 
   if (!resposta.ok) {
-    // Erros tipados vindos do backend (contrato) são repassados; o resto vira erro desconhecido.
+    // Erros tipados vindos do backend (contrato) são repassados; o resto (ex.: HTML de um proxy) vira
+    // erro desconhecido sem mensagem.
     if (ehObjeto && 'tipo' in corpo) return { ...corpo, status: 'erro' }
-    return { status: 'erro', tipo: 'erro_desconhecido', mensagem: `HTTP ${resposta.status}` }
+    return { status: 'erro', tipo: 'erro_desconhecido', mensagem: '' }
   }
 
   return corpo

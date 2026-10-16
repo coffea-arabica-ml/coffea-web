@@ -48,8 +48,10 @@ describe('normalizarResposta', () => {
     })
   })
 
-  it('transforma lixo e tipos de erro desconhecidos em erro_desconhecido', () => {
-    expect(normalizarResposta(null, url)).toMatchObject({ status: 'erro', tipo: 'erro_desconhecido' })
-    expect(normalizarResposta({ status: 'erro', tipo: 'outro' }, url)).toMatchObject({ tipo: 'erro_desconhecido' })
+  it('transforma lixo e tipos de erro desconhecidos em erro_desconhecido, sem mensagem técnica', () => {
+    const semMensagem = { status: 'erro', tipo: 'erro_desconhecido', mensagem: '' }
+    expect(normalizarResposta(null, url)).toEqual(semMensagem)
+    expect(normalizarResposta({ status: 'processando' }, url)).toEqual(semMensagem)
+    expect(normalizarResposta({ status: 'erro', tipo: 'outro' }, url)).toEqual(semMensagem)
   })
 })

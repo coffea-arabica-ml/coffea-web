@@ -38,8 +38,8 @@ export const ERROS: Record<TipoErroUpload, TextoErro> = {
     sugestao: 'Confira se a foto é do cafeeiro certo e envie novamente.',
   },
   arquivo_muito_grande: {
-    rotulo: 'Arquivo grande demais',
-    titulo: 'Essa foto passa do limite de 10 MB',
+    rotulo: 'Acima do limite',
+    titulo: 'Essa foto é grande demais',
     explicacao: 'Arquivos muito grandes demoram para enviar e não melhoram o diagnóstico.',
     sugestao: 'Reduza a resolução da foto ou tire outra pela câmera do celular.',
   },
@@ -53,7 +53,7 @@ export const ERROS: Record<TipoErroUpload, TextoErro> = {
     rotulo: 'Algo deu errado',
     titulo: 'Não foi possível analisar agora',
     explicacao: 'Tivemos um problema de conexão ou no servidor. Sua foto não tem nada de errado.',
-    sugestao: 'Verifique sua internet e tente de novo em alguns instantes.',
+    sugestao: 'Se o problema continuar, verifique sua conexão ou volte daqui a pouco.',
   },
 }
 

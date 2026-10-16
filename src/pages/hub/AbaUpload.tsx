@@ -36,6 +36,9 @@ const ICONES_ERRO: Record<TipoErroUpload, LucideIcon> = {
   erro_desconhecido: CloudOff,
 }
 
+/** Tipos em que a mensagem de src/api diz mais que o texto genérico: qual formato, qual limite, o que falhou. */
+const MOSTRA_MENSAGEM: ReadonlySet<TipoErroUpload> = new Set(['formato_invalido', 'arquivo_muito_grande', 'erro_desconhecido'])
+
 const EXEMPLOS = [
   { src: exemploDoente, nome: 'planta-cafe-doente.jpg', rotulo: 'Com sinais' },
   { src: exemploSaudavel, nome: 'planta-cafe-saudavel.jpg', rotulo: 'Saudável' },
@@ -261,7 +264,7 @@ function EstadoSucesso({ analise }: { analise: AnaliseAtual }) {
   )
 }
 
-function EstadoErro(props: { tipo: TipoErroUpload; mensagem: string; nomeArquivo: string; tamanho: number; previewUrl: string | null }) {
+export function EstadoErro(props: { tipo: TipoErroUpload; mensagem: string; nomeArquivo: string; tamanho: number; previewUrl: string | null }) {
   const { tentarNovamente } = useSessaoAnalise()
   const texto = ERROS[props.tipo]
   const Icone = ICONES_ERRO[props.tipo]
@@ -287,8 +290,8 @@ function EstadoErro(props: { tipo: TipoErroUpload; mensagem: string; nomeArquivo
       <div role="alert">
         <Titulo sobretitulo="Não foi possível analisar">{texto.titulo}</Titulo>
         <p className="mt-4 max-w-prose leading-relaxed text-tinta-suave">
-          {/* A validação local diz qual formato recebeu (ex.: GIF); é mais útil que o texto genérico. */}
-          {props.tipo === 'formato_invalido' && props.mensagem ? props.mensagem : texto.explicacao}
+          {/* Sem mensagem (ex.: falha de conexão), fica a explicação padrão do tipo. */}
+          {MOSTRA_MENSAGEM.has(props.tipo) && props.mensagem ? props.mensagem : texto.explicacao}
         </p>
         <p className="mt-3 max-w-prose leading-relaxed font-medium">{texto.sugestao}</p>
       </div>

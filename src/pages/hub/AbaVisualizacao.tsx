@@ -9,7 +9,7 @@ import { BotaoSalvarAnalise } from './ModalSalvarAnalise'
 import { cx } from '../../components/ui'
 import { agruparPorCategoria, problemasDe } from '../../domain/analise'
 import { CATEGORIAS } from '../../domain/categorias'
-import { circuloEmPorcentagem } from '../../domain/geometria'
+import { circuloEmPorcentagem, seloDoCirculo } from '../../domain/geometria'
 import { ROTULO_SEVERIDADE } from '../../domain/severidade'
 import { useSessaoAnalise } from '../../state/SessaoAnalise'
 
@@ -47,7 +47,9 @@ export function AbaVisualizacao() {
   return (
     <div className="grid items-start gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] md:gap-12">
       <div className="animate-surgir md:sticky md:top-28">
+        {/* @container: o selo usa a largura da moldura (cqw) para nunca sair dela. */}
         <MolduraImagem
+          className="@container"
           nomeTransicao="foto"
           src={diagnostico.imagemUrl}
           alt="Foto analisada com as folhas afetadas marcadas" status="problema" alturaMaxima="70vh">
@@ -75,8 +77,8 @@ export function AbaVisualizacao() {
                   }}
                 >
                   <span
-                    className="absolute -top-1 -right-1 grid size-6 place-items-center rounded-full text-xs font-bold text-white ring-2 ring-white tabular-nums"
-                    style={{ background: CATEGORIAS[folha.categoria].cor }}
+                    className="absolute grid size-6 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-xs font-bold text-white ring-2 ring-white tabular-nums"
+                    style={{ background: CATEGORIAS[folha.categoria].cor, ...seloDoCirculo(folha.regiao, proporcao) }}
                   >
                     {numero.get(folha.id)}
                   </span>

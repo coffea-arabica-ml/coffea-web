@@ -74,18 +74,19 @@ describe('httpDiagnosticar', () => {
     expect(await httpDiagnosticar(foto())).toEqual({ status: 'erro', tipo, mensagem })
   })
 
-  it('não-OK sem corpo do contrato vira erro desconhecido', async () => {
+  it('não-OK sem corpo do contrato vira erro desconhecido sem mensagem (nada de "HTTP 502" na tela)', async () => {
     responder(502)
-    expect(await httpDiagnosticar(foto())).toMatchObject({ status: 'erro', tipo: 'erro_desconhecido' })
+    expect(await httpDiagnosticar(foto())).toEqual({ status: 'erro', tipo: 'erro_desconhecido', mensagem: '' })
   })
 
-  it('falha de rede vira erro desconhecido, sem lançar', async () => {
+  it('500 com HTML de proxy também chega sem mensagem', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('<html><body>Internal Server Error</body></html>', { status: 500 })))
+    expect(await httpDiagnosticar(foto())).toEqual({ status: 'erro', tipo: 'erro_desconhecido', mensagem: '' })
+  })
+
+  it('falha de rede vira erro desconhecido, sem lançar e sem o texto da exceção', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new TypeError('Failed to fetch'))))
-    expect(await httpDiagnosticar(foto())).toEqual({
-      status: 'erro',
-      tipo: 'erro_desconhecido',
-      mensagem: 'Não foi possível conectar ao servidor.',
-    })
+    expect(await httpDiagnosticar(foto())).toEqual({ status: 'erro', tipo: 'erro_desconhecido', mensagem: '' })
   })
 
   it('tempo limite vira erro desconhecido', async () => {

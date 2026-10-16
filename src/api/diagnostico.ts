@@ -26,10 +26,8 @@ export async function enviarImagemParaDiagnostico(imagem: File, opcoes: OpcoesEn
     return normalizarResposta(bruta, () => URL.createObjectURL(imagem))
   } catch (e) {
     if (signal?.aborted) throw e
-    return {
-      status: 'erro',
-      tipo: 'erro_desconhecido',
-      mensagem: e instanceof Error ? e.message : 'Falha inesperada ao analisar a imagem.',
-    }
+    // O texto da exceção (às vezes em inglês, ex.: "AbortSignal.any is not a function") fica no console, não na tela.
+    console.error('[Cafélens] falha inesperada no diagnóstico', e)
+    return { status: 'erro', tipo: 'erro_desconhecido', mensagem: 'Ocorreu uma falha inesperada ao analisar a foto.' }
   }
 }
