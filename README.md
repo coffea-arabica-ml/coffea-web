@@ -51,5 +51,4 @@ também um painel de cenários (botão de frasco, canto inferior esquerdo) que e
 Veja `CLAUDE.md` (seção "Estrutura de pastas") e `docs/frontend-reference/`.
 
 ## Contribuindo
-Uma branch por tarefa (`feature/nome-da-tarefa`), commits no imperativo e PR obrigatório antes do merge na
-`main`.
+Trabalhamos direto na `main`, sem branch nem PR (decisão do gestor, 16/10/2026). Commits no imperativo.
