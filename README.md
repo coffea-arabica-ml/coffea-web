@@ -30,9 +30,10 @@ O site chama o `POST /diagnostico` do coffea-backend, que roda o modelo do coffe
    ```
 4. Rode (ou reinicie) o `npm run dev`: o Vite só lê o `.env` na subida.
 
-O backend faz uma inferência por vez; com fila, o site mostra o aviso de demora. O deploy na Vercel não
-alcança um backend rodando no PC: a URL de produção fica para a Frente 10. O contrato e os códigos HTTP
-estão em `docs/frontend-reference/03-contrato-api-mock.md`.
+O backend faz uma inferência por vez; com fila, o site mostra o aviso de demora. Em produção, o site
+(https://coffea-web.vercel.app) usa o backend em https://api.coffealab.tech: na Vercel, `VITE_API_MODE=http` e
+`VITE_API_URL=https://api.coffealab.tech` são variáveis do tipo Config, só no ambiente Production. O contrato e
+os códigos HTTP estão em `docs/frontend-reference/03-contrato-api-mock.md`.
 
 No modo mock, `?cenario=<id>` e `?atraso=<ms>` na URL forçam um resultado ou uma latência. Em `npm run dev` há
 também um painel de cenários (botão de frasco, canto inferior esquerdo) que envia as fixtures de teste. Veja
@@ -52,3 +53,10 @@ Veja `CLAUDE.md` (seção "Estrutura de pastas") e `docs/frontend-reference/`.
 
 ## Contribuindo
 Trabalhamos direto na `main`, sem branch nem PR (decisão do gestor, 16/10/2026). Commits no imperativo.
+
+## Licença e código-fonte
+O projeto é software livre sob a [AGPL-3.0](LICENSE). O código está em
+[github.com/coffea-arabica-ml](https://github.com/coffea-arabica-ml): `coffea-web`, `coffea-mobile`, `coffea-backend` e
+`coffea-ml`. Os modelos foram treinados com conjuntos de dados sob licença CC BY 4.0, com créditos e citações em
+[`coffea-ml/data/README.md`](https://github.com/coffea-arabica-ml/coffea-ml/blob/main/data/README.md). Os links no
+rodapé do site cumprem a seção 13 da AGPL (oferecer o código a quem usa o serviço).

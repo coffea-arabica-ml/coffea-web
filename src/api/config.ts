@@ -3,7 +3,7 @@ export type ModoApi = 'mock' | 'http'
 /** "mock" (padrão) usa src/api/mock; "http" chama o coffea-backend em VITE_API_URL. */
 export const modoApi: ModoApi = import.meta.env.VITE_API_MODE === 'http' ? 'http' : 'mock'
 
-// TODO(frente-10): a URL de produção depende do deploy do coffea-backend
+// Produção: a Vercel define VITE_API_MODE=http e VITE_API_URL=https://api.coffealab.tech (tipo Config, só no ambiente Production)
 export const API_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
 export const LIMITES = {

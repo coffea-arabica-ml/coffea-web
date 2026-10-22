@@ -3,13 +3,16 @@ import { ArrowRight } from 'lucide-react'
 import fundo from '../assets/fundo-1.jpg'
 import { Logo } from '../components/Logo'
 import { classesBotao } from '../components/ui'
-import { AVISO_AGRONOMICO } from '../content/textos'
+import { AVISO_AGRONOMICO, URL_CODIGO_FONTE, URL_CREDITOS_DADOS } from '../content/textos'
 
 const PASSOS = [
   { titulo: 'Fotografe a planta', texto: 'Pelo celular ou computador, uma foto do cafeeiro inteiro.' },
   { titulo: 'A IA examina cada folha', texto: 'Cada folha visível é localizada e classificada em poucos segundos.' },
   { titulo: 'Receba o diagnóstico', texto: 'Tipo de estresse, severidade e orientações de cuidado.' },
 ]
+
+const CLASSE_LINK_RODAPE =
+  'rounded-sm text-white/80 underline decoration-white/40 underline-offset-2 hover:text-white hover:decoration-white focus-visible:outline-folha-300'
 
 /** Tela 1 — apresenta o Cafélens e convida a começar. */
 export function TelaInicial() {
@@ -72,6 +75,17 @@ export function TelaInicial() {
           <p>
             Projeto de pesquisa aplicada da UNIFRAN — Estimativa de Severidade e Classificação de Estresses Bióticos em Folhas
             de <i>Coffea arabica</i> via Aprendizado por Transferência.
+          </p>
+          <p className="mt-1">
+            Código-fonte aberto sob a licença AGPL-3.0:{' '}
+            <a href={URL_CODIGO_FONTE} target="_blank" rel="noopener noreferrer" className={CLASSE_LINK_RODAPE}>
+              github.com/coffea-arabica-ml
+            </a>
+            . Modelos treinados com os conjuntos de dados BRACOL e BRACOT (licença CC BY 4.0):{' '}
+            <a href={URL_CREDITOS_DADOS} target="_blank" rel="noopener noreferrer" className={CLASSE_LINK_RODAPE}>
+              créditos e citações
+            </a>
+            .
           </p>
           <p className="mt-1">{AVISO_AGRONOMICO}</p>
         </footer>

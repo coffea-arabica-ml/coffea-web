@@ -31,7 +31,9 @@ chegar, mas a versão final de uma frente só se consolida depois que a frente a
   exercitar estados que o modelo raramente produz (ex.: `especie_incorreta`, folha sem `regiao`).
 - Toda suposição sobre a resposta segue isolada em `src/api/`: nenhum componente de tela faz suposições
   diretas sobre o formato da resposta da API.
-- O deploy (Vercel) não alcança um backend rodando no PC: a URL de produção do backend é assunto da Frente 10.
+- Em produção, o site (https://coffea-web.vercel.app) usa o backend em https://api.coffealab.tech: na Vercel,
+  `VITE_API_MODE=http` e `VITE_API_URL=https://api.coffealab.tech` são variáveis do tipo Config, só no ambiente
+  Production.
 
 ## RF09 e o formato de dados (leia antes de decidir estrutura de dados)
 

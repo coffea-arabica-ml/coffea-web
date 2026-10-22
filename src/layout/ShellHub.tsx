@@ -3,9 +3,12 @@ import { Link, Navigate, Outlet, useLocation } from 'react-router'
 import { FlaskConical } from 'lucide-react'
 import { modoApi } from '../api'
 import { Logo } from '../components/Logo'
-import { AVISO_AGRONOMICO } from '../content/textos'
+import { AVISO_AGRONOMICO, URL_CODIGO_FONTE, URL_CREDITOS_DADOS } from '../content/textos'
 import { useSessaoAnalise } from '../state/SessaoAnalise'
 import { NavegacaoAbas } from './NavegacaoAbas'
+
+const CLASSE_LINK_RODAPE =
+  'rounded-sm underline decoration-tinta-fraca/50 underline-offset-2 hover:text-tinta hover:decoration-current'
 
 function SeloDemonstracao() {
   if (modoApi !== 'mock') return null
@@ -63,7 +66,18 @@ export function ShellHub() {
         <Outlet />
       </main>
 
-      <footer className="mx-auto hidden w-full max-w-6xl px-6 pb-8 text-xs text-tinta-fraca md:block">{AVISO_AGRONOMICO}</footer>
+      <footer className="mx-auto hidden w-full max-w-6xl flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-6 pb-8 text-xs text-tinta-fraca md:flex">
+        <p>{AVISO_AGRONOMICO}</p>
+        <p>
+          <a href={URL_CODIGO_FONTE} target="_blank" rel="noopener noreferrer" className={CLASSE_LINK_RODAPE}>
+            Código-fonte (AGPL-3.0)
+          </a>
+          <span aria-hidden> · </span>
+          <a href={URL_CREDITOS_DADOS} target="_blank" rel="noopener noreferrer" className={CLASSE_LINK_RODAPE}>
+            Créditos dos dados
+          </a>
+        </p>
+      </footer>
       <NavegacaoAbas variante="rodape" />
     </div>
   )

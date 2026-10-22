@@ -58,3 +58,7 @@ export const ERROS: Record<TipoErroUpload, TextoErro> = {
 }
 
 export const AVISO_AGRONOMICO = 'O Cafélens é uma ferramenta de apoio e não substitui a avaliação de um engenheiro agrônomo.'
+
+/** O backend usa a Ultralytics (AGPL-3.0): a seção 13 pede oferecer o código-fonte a quem usa o serviço. */
+export const URL_CODIGO_FONTE = 'https://github.com/coffea-arabica-ml'
+export const URL_CREDITOS_DADOS = 'https://github.com/coffea-arabica-ml/coffea-ml/blob/main/data/README.md'
