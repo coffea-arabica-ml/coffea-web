@@ -52,7 +52,12 @@ também um painel de cenários (botão de frasco, canto inferior esquerdo) que e
 Veja `CLAUDE.md` (seção "Estrutura de pastas") e `docs/frontend-reference/`.
 
 ## Contribuindo
-Trabalhamos direto na `main`, sem branch nem PR (decisão do gestor, 16/10/2026). Commits no imperativo.
+O time trabalha direto na `main` (decisão do gestor, 16/10/2026). Quem é de fora contribui com fork e pull request.
+Antes, leia o [guia de contribuição](https://github.com/coffea-arabica-ml/.github/blob/main/CONTRIBUTING.md), o
+[código de conduta](https://github.com/coffea-arabica-ml/.github/blob/main/CODE_OF_CONDUCT.md) e a
+[política de segurança](https://github.com/coffea-arabica-ml/.github/blob/main/SECURITY.md).
+
+Como citar: veja o [`CITATION.cff`](CITATION.cff).
 
 ## Licença e código-fonte
 O projeto é software livre sob a [AGPL-3.0](LICENSE). O código está em
